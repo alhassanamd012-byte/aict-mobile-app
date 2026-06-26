@@ -22,7 +22,8 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.aictglobal.aictmobile"
+      "package": "com.aictglobal.aictmobile",
+      "kotlinVersion": "1.9.24"
     },
     "web": {
       "favicon": "./assets/favicon.png"
