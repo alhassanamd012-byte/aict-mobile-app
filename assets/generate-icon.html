@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head><title>Generate Icon</title></head>
+<body>
+<canvas id="c" width="1024" height="1024"></canvas>
+<br>
+<a id="dl" download="icon.png">Download icon.png</a>
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const size = 1024;
+const grad = ctx.createLinearGradient(0, 0, size, size);
+grad.addColorStop(0, '#1e3a8a');
+grad.addColorStop(1, '#1d4ed8');
+ctx.fillStyle = grad;
+roundRect(ctx, 0, 0, size, size, 180);
+ctx.fill();
+const shine = ctx.createLinearGradient(0, 0, 0, size/2);
+shine.addColorStop(0, 'rgba(255,255,255,0.18)');
+shine.addColorStop(1, 'rgba(255,255,255,0)');
+ctx.fillStyle = shine;
+roundRect(ctx, 0, 0, size, size/2, 180);
+ctx.fill();
+ctx.fillStyle = 'rgba(255,255,255,0.12)';
+roundRect(ctx, 110, 380, 800, 310, 50);
+ctx.fill();
+ctx.fillStyle = 'white';
+ctx.font = '900 240px Arial Black, sans-serif';
+ctx.textAlign = 'center';
+ctx.letterSpacing = '15px';
+ctx.fillText('AICT', size/2, 600);
+ctx.fillStyle = 'rgba(255,255,255,0.3)';
+ctx.fillRect(220, 640, 580, 4);
+ctx.fillStyle = 'rgba(255,255,255,0.8)';
+ctx.font = '400 60px Arial, sans-serif';
+ctx.letterSpacing = '8px';
+ctx.fillText('EMS', size/2, 730);
+ctx.fillStyle = 'rgba(255,255,255,0.5)';
+ctx.beginPath(); ctx.arc(462, 850, 14, 0, Math.PI*2); ctx.fill();
+ctx.fillStyle = 'white';
+ctx.beginPath(); ctx.arc(512, 850, 14, 0, Math.PI*2); ctx.fill();
+ctx.fillStyle = 'rgba(255,255,255,0.5)';
+ctx.beginPath(); ctx.arc(562, 850, 14, 0, Math.PI*2); ctx.fill();
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.lineTo(x+w-r, y);
+  ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+  ctx.lineTo(x+w, y+h-r);
+  ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+  ctx.lineTo(x+r, y+h);
+  ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+  ctx.lineTo(x, y+r);
+  ctx.quadraticCurveTo(x, y, x+r, y);
+  ctx.closePath();
+}
+document.getElementById('dl').href = canvas.toDataURL('image/png');
+document.getElementById('dl').click();
+</script>
+</body>
+</html>

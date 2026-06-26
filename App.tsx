@@ -1,11 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
   StyleSheet, Alert, ActivityIndicator, StatusBar,
-  ScrollView, SafeAreaView
+  ScrollView, SafeAreaView, Platform
 } from 'react-native';
 import * as Location from 'expo-location';
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
 const API = 'https://emp-management-api-4icz.onrender.com';
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
+});
+async function registerForPushNotifications() {
+  if (!Device.isDevice) return null;
+  const { status: existingStatus } = await Notifications.getPermissionsAsync();
+  let finalStatus = existingStatus;
+  if (existingStatus !== 'granted') {
+    const { status } = await Notifications.requestPermissionsAsync();
+    finalStatus = status;
+  }
+  if (finalStatus !== 'granted') return null;
+  const token = await Notifications.getExpoPushTokenAsync({
+    projectId: '74ede9b2-9e57-46b4-ae82-9b23342f6998'
+  });
+  return token.data;
+}
 export default function App() {
   const [screen, setScreen] = useState('login');
   const [email, setEmail] = useState('');
@@ -14,6 +37,20 @@ export default function App() {
   const [checkLoading, setCheckLoading] = useState(false);
   const [employee, setEmployee] = useState<any>(null);
   const [token, setToken] = useState('');
+  const notificationListener = useRef<any>();
+  const responseListener = useRef<any>();
+  useEffect(() => {
+    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+      console.log('Notification received:', notification);
+    });
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log('Notification response:', response);
+    });
+    return () => {
+      Notifications.removeNotificationSubscription(notificationListener.current);
+      Notifications.removeNotificationSubscription(responseListener.current);
+    };
+  }, []);
   const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert('Error', 'Please enter email and password');
@@ -31,6 +68,15 @@ export default function App() {
         setEmployee(data.employee);
         setToken(data.token);
         setScreen('dashboard');
+        // Register push token
+        const pushToken = await registerForPushNotifications();
+        if (pushToken) {
+          await fetch(`${API}/api/notifications/save-token`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ employeeId: data.employee._id, pushToken })
+          });
+        }
       } else {
         Alert.alert('Error', data.message || 'Login failed');
       }
@@ -160,7 +206,6 @@ export default function App() {
               <Text style={styles.empDesig}>{employee?.designation}</Text>
             </View>
           </View>
-          {/* Attendance Buttons */}
           <View style={styles.attendanceSection}>
             <Text style={styles.sectionTitle}>📅 Today's Attendance</Text>
             <View style={styles.attendanceButtons}>
@@ -188,7 +233,6 @@ export default function App() {
               </TouchableOpacity>
             </View>
           </View>
-          {/* Profile Info */}
           <Text style={styles.sectionTitle}>👤 My Profile</Text>
           <View style={styles.infoGrid}>
             {[
