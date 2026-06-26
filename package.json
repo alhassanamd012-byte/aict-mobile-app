@@ -13,7 +13,7 @@
     "expo-constants": "~18.0.13",
     "expo-device": "^56.0.4",
     "expo-location": "^17.0.1",
-    "expo-notifications": "^56.0.18",
+    "expo-notifications": "^0.28.19",
     "expo-status-bar": "~3.0.9",
     "react": "19.1.0",
     "react-native": "0.81.5"
